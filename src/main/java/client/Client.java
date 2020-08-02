@@ -1,58 +1,67 @@
 package client;
 
-import java.awt.*;
-import java.io.*;
-import java.net.ServerSocket;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class Client {
 
-    public static void main( String[] args ) throws UnknownHostException, IOException {
-        Client client = new Client( "10.0.0.5", 3333 );
+    public static void main(String[] args) throws UnknownHostException, IOException {
+        String azor = "127.0.0.1";
+        Client client = new Client(azor, 3333);
+        client.connect();
 
     }
 
+    private String address = null;
+    private int port;
     private Socket socket = null;
     private ObjectOutputStream output = null;
     private ObjectInputStream input = null;
-    private ServerSocket serverSocket = null;
 
-    public Client( String address, int port ) {
+    public Client(String address, int port) {
+        this.address = address;
+        this.port = port;
+    }
+
+    public void connect() {
         try {
-            socket = new Socket( address, port );
-
-            input = new ObjectInputStream( System.in );
-
-            output = new ObjectOutputStream(socket.getOutputStream());
-
-            String line = "";
-
-            while ( !line.equals( "exit" ) ) {
-                line = ( String ) input.readObject();
-                output.writeObject( line );
-            }
-
-            socket.close();
-            output.close();
-        } catch ( Exception e ) {
-            e.printStackTrace( );
+            socket = new Socket(address, port);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    public InputStream receive( Socket socket ) throws IOException {
-        System.out.println( socket );
-        return socket.getInputStream( );
+    public Object recieve() {
+        try {
+            input = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
+            return input.readObject();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     // Send stream
-    public void send( Object object, Socket socket ) {
+    public void send(Object object, Socket socket) {
         ObjectOutputStream outputStream;
         try {
-            outputStream = new ObjectOutputStream( socket.getOutputStream( ) );
-            outputStream.writeObject( object );
-        } catch ( IOException e ) {
-            e.printStackTrace( );
+            outputStream = new ObjectOutputStream(socket.getOutputStream());
+            outputStream.writeObject(object);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void close() {
+        try {
+            socket.close();
+            output.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

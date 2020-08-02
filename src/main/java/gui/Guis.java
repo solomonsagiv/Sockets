@@ -16,6 +16,7 @@ public class Guis {
             super( title );
             init( );
             initialize( );
+            initListeners();
             packAndFinish( );
             initOnClose( );
         }
