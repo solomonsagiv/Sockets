@@ -1,75 +1,71 @@
 package server;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server {
 
-    public static void main( String[] args ) throws IOException {
-        Server server = new Server( 3333 );
+    public static void main(String[] args) throws IOException {
+        Server server = new Server(3333);
+        server.listen();
     }
 
+    private String status = "Server is close";
+
+    private int port;
     private Socket socket = null;
     private ObjectOutputStream output = null;
     private ObjectInputStream input = null;
     private ServerSocket serverSocket = null;
 
-    public Server( int port ) {
-        try {
-            serverSocket = new ServerSocket(port);
-            System.out.println( "Waiting for client" );
-
-            socket = serverSocket.accept();
-
-            input = new ObjectInputStream( new BufferedInputStream( socket.getInputStream() ));
-
-            System.out.println(input.readObject() );
-
-            socket.close();
-            input.close();
-
-        } catch ( Exception e ) {
-            e.printStackTrace();
-        }
+    public Server(int port) {
+        this.port = port;
     }
 
-    public Socket getMySocket( int port ) {
-        try {
-            ServerSocket serverSocket = new ServerSocket( port );
-            return serverSocket.accept( );
-        } catch ( Exception e ) {
-            return null;
-        }
-    }
-
-    // Recieve stream
-    @SuppressWarnings( "resource" )
-    public Object reciever( Socket socket ) {
-        ObjectInputStream inputStream;
-        try {
-            inputStream = new ObjectInputStream( socket.getInputStream( ) );
+    public void listen() {
+        new Thread(() -> {
             try {
-                return inputStream.readObject( );
-            } catch ( ClassNotFoundException e ) {
-                e.printStackTrace( );
+                serverSocket = new ServerSocket(port);
+                socket = serverSocket.accept();
+                status = "Waiting for client on port " + port;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch ( IOException e ) {
-            e.printStackTrace( );
+        }).start();
+    }
+
+    public Object recieve() {
+        try {
+            input = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
+            return input.readObject();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }
 
     // Send stream
-    public void send( Object object, Socket socket ) {
-        PrintStream printStream;
+    public void send(Object object, Socket socket) {
         try {
-            printStream = new PrintStream( socket.getOutputStream( ) );
-            printStream.println( object );
-        } catch ( IOException e ) {
-            e.printStackTrace( );
+            output = new ObjectOutputStream(socket.getOutputStream());
+            output.writeObject(object);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
+    public void close() throws IOException {
+        socket.close();
+        input.close();
+        status = "Server is close";
+    }
+
+    public String getStatus() {
+        return status;
+    }
 }
 

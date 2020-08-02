@@ -1,6 +1,8 @@
 package client.window;
 
+import client.Client;
 import gui.Guis;
+import locals.L;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,6 +13,14 @@ public class ClientWindow extends Guis.MyFrame {
     public static void main( String[] args ) {
         ClientWindow clientWindow = new ClientWindow( "Client" );
     }
+
+    private int port;
+    private String address;
+
+    Client client;
+
+    Guis.MyLabel addressLbl;
+    Guis.MyTextField addressField;
 
     Guis.MyLabel portLbl;
     Guis.MyTextField portField;
@@ -37,6 +47,25 @@ public class ClientWindow extends Guis.MyFrame {
             @Override
             public void actionPerformed( ActionEvent e ) {
 
+                // Port
+                if (!portField.getText().isEmpty()) {
+                    try {
+                        port = L.INT(portField.getText());
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
+                    }
+                }
+
+                // Address
+                if (!addressField.getText().isEmpty()) {
+                    try {
+                        address = addressField.getText();
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
+                    }
+                }
+
+                client = new Client(address, port);
             }
         } );
     }
@@ -56,7 +85,18 @@ public class ClientWindow extends Guis.MyFrame {
 
         portField = new Guis.MyTextField( );
         portField.setXY( portLbl.getX( ), portLbl.getY( ) + portLbl.getHeight( ) + 5 );
+        portField.setText("3333");
         add( portField );
+
+        // Address
+        addressLbl = new Guis.MyLabel("Address");
+        addressLbl.setXY(portLbl.getX() + portLbl.getWidth() + 15, portLbl.getY());
+        add(addressLbl);
+
+        addressField = new Guis.MyTextField();
+        addressField.setXY(addressLbl.getX(), portField.getY());
+        addressField.setText("127.0.0.1");
+        add(addressField);
 
         // Text area
         textArea = new JTextArea( );
