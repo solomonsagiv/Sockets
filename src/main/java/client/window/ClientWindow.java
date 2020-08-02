@@ -7,6 +7,8 @@ import locals.L;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class ClientWindow extends Guis.MyFrame {
 
@@ -16,6 +18,7 @@ public class ClientWindow extends Guis.MyFrame {
 
     private int port;
     private String address;
+    private String path;
 
     Client client;
 
@@ -38,7 +41,13 @@ public class ClientWindow extends Guis.MyFrame {
 
     @Override
     public void initOnClose() {
-
+        addWindowListener( new WindowAdapter( ) {
+            @Override
+            public void windowClosed( WindowEvent e ) {
+                client.close( );
+                super.windowClosed( e );
+            }
+        } );
     }
 
     @Override
@@ -48,24 +57,34 @@ public class ClientWindow extends Guis.MyFrame {
             public void actionPerformed( ActionEvent e ) {
 
                 // Port
-                if (!portField.getText().isEmpty()) {
+                if ( !portField.getText( ).isEmpty( ) ) {
                     try {
-                        port = L.INT(portField.getText());
-                    } catch (Exception exception) {
-                        exception.printStackTrace();
+                        port = L.INT( portField.getText( ) );
+                    } catch ( Exception exception ) {
+                        exception.printStackTrace( );
                     }
                 }
 
                 // Address
-                if (!addressField.getText().isEmpty()) {
+                if ( !addressField.getText( ).isEmpty( ) ) {
                     try {
-                        address = addressField.getText();
-                    } catch (Exception exception) {
-                        exception.printStackTrace();
+                        address = addressField.getText( );
+                    } catch ( Exception exception ) {
+                        exception.printStackTrace( );
                     }
                 }
 
-                client = new Client(address, port);
+                // Excel file
+                if ( !excelField.getText( ).isEmpty( ) ) {
+                    try {
+                        path = excelField.getText( );
+                    } catch ( Exception exception ) {
+                        exception.printStackTrace( );
+                    }
+                }
+
+                client = new Client( address, port, path );
+                client.connect( );
             }
         } );
     }
@@ -74,6 +93,10 @@ public class ClientWindow extends Guis.MyFrame {
     public void initialize() {
 
         int width = 350;
+        String azor = "127.0.0.1";
+        String ono = "10.0.0.2";
+
+        setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 
         // This
         setSize( width, 400 );
@@ -85,18 +108,18 @@ public class ClientWindow extends Guis.MyFrame {
 
         portField = new Guis.MyTextField( );
         portField.setXY( portLbl.getX( ), portLbl.getY( ) + portLbl.getHeight( ) + 5 );
-        portField.setText("3333");
+        portField.setText( "3333" );
         add( portField );
 
         // Address
-        addressLbl = new Guis.MyLabel("Address");
-        addressLbl.setXY(portLbl.getX() + portLbl.getWidth() + 15, portLbl.getY());
-        add(addressLbl);
+        addressLbl = new Guis.MyLabel( "Address" );
+        addressLbl.setXY( portLbl.getX( ) + portLbl.getWidth( ) + 15, portLbl.getY( ) );
+        add( addressLbl );
 
-        addressField = new Guis.MyTextField();
-        addressField.setXY(addressLbl.getX(), portField.getY());
-        addressField.setText("127.0.0.1");
-        add(addressField);
+        addressField = new Guis.MyTextField( );
+        addressField.setXY( addressLbl.getX( ), portField.getY( ) );
+        addressField.setText( ono );
+        add( addressField );
 
         // Text area
         textArea = new JTextArea( );
@@ -113,6 +136,7 @@ public class ClientWindow extends Guis.MyFrame {
         // Excel field
         excelField = new Guis.MyTextField( );
         excelField.setXY( scrollPane.getX( ), scrollPane.getY( ) + scrollPane.getHeight( ) + 15 );
+        excelField.setText( "C:/Users/user/Desktop/DDE/[DDE.xlsm]Yogi" );
         excelField.setWidth( width - scrollPane.getX( ) * 2 );
         add( excelField );
     }

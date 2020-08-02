@@ -1,6 +1,8 @@
 package myData;
 
-public class MyInstructions {
+import java.io.Serializable;
+
+public class MyInstructions implements Serializable {
 
     private int startRow;
     private int endRow;

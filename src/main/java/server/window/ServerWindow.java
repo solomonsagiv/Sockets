@@ -13,8 +13,8 @@ import java.awt.event.WindowEvent;
 
 public class ServerWindow extends Guis.MyFrame {
 
-    public static void main(String[] args) {
-        ServerWindow serverWindow = new ServerWindow("Server");
+    public static void main( String[] args ) {
+        ServerWindow serverWindow = new ServerWindow( "Server" );
     }
 
     int port;
@@ -30,61 +30,64 @@ public class ServerWindow extends Guis.MyFrame {
     Guis.MyTextField portField;
 
     JScrollPane scrollPane;
-    JTextArea textArea;
+    public static JTextArea textArea;
 
     Guis.MyTextField excelField;
 
     // Constructor
-    public ServerWindow(String title) throws HeadlessException {
-        super(title);
+    public ServerWindow( String title ) throws HeadlessException {
+        super( title );
     }
 
     @Override
     public void initOnClose() {
-        addWindowListener(new WindowAdapter() {
+        addWindowListener( new WindowAdapter( ) {
             @Override
-            public void windowClosed(WindowEvent e) {
+            public void windowClosed( WindowEvent e ) {
                 try {
-                    server.close();
-                } catch (Exception exception) {
-                    exception.printStackTrace();
+                    server.close( );
+                } catch ( Exception exception ) {
+                    exception.printStackTrace( );
                 }
-                super.windowClosed(e);
+                super.windowClosed( e );
             }
-        });
+        } );
     }
 
     @Override
     public void initListeners() {
-
-        listenBtn.addActionListener(new ActionListener() {
+        listenBtn.addActionListener( new ActionListener( ) {
             @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-
-                textArea.append("sdsdsdsdsdska;l");
+            public void actionPerformed( ActionEvent actionEvent ) {
 
                 // Port
-                if (!portField.getText().isEmpty()) {
+                if ( !portField.getText( ).isEmpty( ) ) {
                     try {
-                        port = L.INT(portField.getText());
-                    } catch (Exception exception) {
-                        exception.printStackTrace();
+                        port = L.INT( portField.getText( ) );
+                    } catch ( Exception exception ) {
+                        exception.printStackTrace( );
+                    }
+                }
+
+                // Excel file
+                if ( !excelField.getText( ).isEmpty( ) ) {
+                    try {
+                        excelFile = excelField.getText( );
+                    } catch ( Exception exception ) {
+                        exception.printStackTrace( );
                     }
                 }
 
                 // Listen
-                server = new Server(port);
+                server = new Server( port, excelFile );
+
                 // Text area append status
-
-
-                server.listen();
+                server.listen( );
 
                 // Enable false
-                listenBtn.setEnabled(false);
-
-                // DDE reader
+                listenBtn.setEnabled( false );
             }
-        });
+        } );
     }
 
     @Override
@@ -94,37 +97,38 @@ public class ServerWindow extends Guis.MyFrame {
         int height = 450;
 
         port = 3333;
-        excelFile = "excel file path";
+
+        setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 
         // This
-        setSize(width, height);
+        setSize( width, height );
 
         // Port
-        portLbl = new Guis.MyLabel("Port");
-        portLbl.setXY(10, 10);
-        add(portLbl);
+        portLbl = new Guis.MyLabel( "Port" );
+        portLbl.setXY( 10, 10 );
+        add( portLbl );
 
-        portField = new Guis.MyTextField();
-        portField.setText(L.str(port));
-        portField.setXY(portLbl.getX(), portLbl.getY() + portLbl.getHeight() + 5);
-        add(portField);
+        portField = new Guis.MyTextField( );
+        portField.setText( L.str( port ) );
+        portField.setXY( portLbl.getX( ), portLbl.getY( ) + portLbl.getHeight( ) + 5 );
+        add( portField );
 
         // Text area
-        textArea = new JTextArea();
-        scrollPane = new JScrollPane(textArea);
-        scrollPane.setBounds(portField.getX(), portField.getY() + portField.getHeight() + 15, 200, 300);
-        add(scrollPane);
+        textArea = new JTextArea( );
+        scrollPane = new JScrollPane( textArea );
+        scrollPane.setBounds( portField.getX( ), portField.getY( ) + portField.getHeight( ) + 15, 200, 300 );
+        add( scrollPane );
 
         // Listen button
-        listenBtn = new Guis.MyButton("Listen");
-        listenBtn.setXY(250, scrollPane.getY());
-        add(listenBtn);
+        listenBtn = new Guis.MyButton( "Listen" );
+        listenBtn.setXY( 250, scrollPane.getY( ) );
+        add( listenBtn );
 
         // Excel field
-        excelField = new Guis.MyTextField();
-        excelField.setXY(scrollPane.getX(), scrollPane.getY() + scrollPane.getHeight() + 15);
-        excelField.setWidth(370);
-        excelField.setText(excelFile);
-        add(excelField);
+        excelField = new Guis.MyTextField( );
+        excelField.setXY( scrollPane.getX( ), scrollPane.getY( ) + scrollPane.getHeight( ) + 15 );
+        excelField.setWidth( 370 );
+        excelField.setText( "C:/Users/user/Desktop/DDE/[DDE.xlsm]write" );
+        add( excelField );
     }
 }

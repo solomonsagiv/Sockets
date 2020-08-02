@@ -23,6 +23,20 @@ public class DDEReader {
         conversation = new DDEConnection().createNewConversation(excelPath);
     }
 
+    public static void main( String[] args ) throws DDEException {
+        MyInstructions instructions = new MyInstructions( 1, 50, 1, 5 );
+
+        String excelPath = "C:/Users/user/Desktop/DDE/[DDE.xlsm]Yogi";
+
+        MyData myData = new MyData( instructions );
+
+        DDEReader ddeReader = new DDEReader( excelPath, myData );
+
+        for ( ArrayList<Integer> line: ddeReader.read().getData()) {
+            System.out.println(line);
+        }
+    }
+
     // Read data
     public MyData read() throws DDEException {
 
@@ -38,7 +52,7 @@ public class DDEReader {
             // Cols
             for (int col = instructions.getStartCol(); col <= instructions.getEndCol(); col++) {
                 cell = R + row + C + col;
-                int cellData = L.INT(conversation.request(cell));
+                int cellData = L.INT(conversation.request(cell).replaceAll("\\s+",""));
                 line.add(cellData);
             }
 
