@@ -1,5 +1,7 @@
 package server.window;
 
+import file.FileMap;
+import file.MyFile;
 import gui.Guis;
 import locals.L;
 import server.Server;
@@ -10,10 +12,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.net.URISyntaxException;
+import java.util.HashMap;
 
 public class ServerWindow extends Guis.MyFrame {
 
-    public static void main( String[] args ) {
+    public static void main( String[] args ) throws URISyntaxException {
         ServerWindow serverWindow = new ServerWindow( "Server" );
     }
 
@@ -34,9 +38,15 @@ public class ServerWindow extends Guis.MyFrame {
 
     Guis.MyTextField excelField;
 
+    MyFile myFile;
+    FileMap fileMap;
+
+    HashMap< String, Object > map;
+
     // Constructor
     public ServerWindow( String title ) throws HeadlessException {
         super( title );
+        fileMap = FileMap.getInstance( );
     }
 
     @Override
@@ -88,15 +98,47 @@ public class ServerWindow extends Guis.MyFrame {
                 listenBtn.setEnabled( false );
             }
         } );
+
+        // Port
+        portField.addActionListener( new ActionListener( ) {
+            @Override
+            public void actionPerformed( ActionEvent e ) {
+                int port = L.INT( portField.getText( ) );
+                map.put( FileMap.PORT, port );
+                myFile.writeObject( map );
+            }
+        } );
+
+        // Excel filed
+        excelField.addActionListener( new ActionListener( ) {
+            @Override
+            public void actionPerformed( ActionEvent e ) {
+                map.put( FileMap.EXCEL_PATH, excelField.getText( ) );
+                myFile.writeObject( map );
+            }
+        } );
     }
 
     @Override
     public void initialize() {
 
         int width = 400;
-        int height = 450;
+        int height = 480;
 
-        port = 3333;
+        try {
+            myFile = new MyFile( "server-db.txt" );
+
+            if ( !myFile.exists( ) ) {
+                myFile.createNewFile( );
+            }
+
+            try {
+                map = ( HashMap< String, Object > ) myFile.readObject( );
+            } catch ( Exception e ) {
+                map = new HashMap<>( );
+            }
+        } catch ( Exception e ) {
+        }
 
         setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 
@@ -109,7 +151,6 @@ public class ServerWindow extends Guis.MyFrame {
         add( portLbl );
 
         portField = new Guis.MyTextField( );
-        portField.setText( L.str( port ) );
         portField.setXY( portLbl.getX( ), portLbl.getY( ) + portLbl.getHeight( ) + 5 );
         add( portField );
 
@@ -128,7 +169,13 @@ public class ServerWindow extends Guis.MyFrame {
         excelField = new Guis.MyTextField( );
         excelField.setXY( scrollPane.getX( ), scrollPane.getY( ) + scrollPane.getHeight( ) + 15 );
         excelField.setWidth( 370 );
-        excelField.setText( "C:/Users/user/Desktop/DDE/[DDE.xlsm]write" );
+
         add( excelField );
+
+        try {
+            portField.setText( L.str( map.get( FileMap.PORT ) ) );
+            excelField.setText( L.str( map.get( FileMap.EXCEL_PATH ) ) );
+        } catch ( NullPointerException e ) {
+        }
     }
 }

@@ -5,6 +5,7 @@ import com.pretty_tools.dde.client.DDEClientConversation;
 import locals.L;
 import myData.MyData;
 import myData.MyInstructions;
+
 import java.util.ArrayList;
 
 public class DDEReader {
@@ -17,10 +18,10 @@ public class DDEReader {
     MyInstructions instructions;
 
     // Constructor
-    public DDEReader(String excelPath, MyData myData) {
+    public DDEReader( String excelPath, MyData myData ) {
         this.myData = myData;
-        this.instructions = myData.getInstructions();
-        conversation = new DDEConnection().createNewConversation(excelPath);
+        this.instructions = myData.getInstructions( );
+        conversation = new DDEConnection( ).createNewConversation( excelPath );
     }
 
     public static void main( String[] args ) throws DDEException {
@@ -32,32 +33,37 @@ public class DDEReader {
 
         DDEReader ddeReader = new DDEReader( excelPath, myData );
 
-        for ( ArrayList<Integer> line: ddeReader.read().getData()) {
-            System.out.println(line);
+        for ( ArrayList< Integer > line : ddeReader.read( ).getData( ) ) {
+            System.out.println( line );
         }
     }
 
     // Read data
     public MyData read() throws DDEException {
 
-        ArrayList<ArrayList<Integer>> data = new ArrayList<>();
+        ArrayList< ArrayList< Integer > > data = new ArrayList<>( );
         String cell;
-        ArrayList<Integer> line;
+        ArrayList< Integer > line;
 
         // Rows
-        for (int row = instructions.getStartRow(); row <= instructions.getEndRow(); row++) {
+        for ( int row = instructions.getStartRow( ); row <= instructions.getEndRow( ); row++ ) {
 
-            line = new ArrayList<>();
+            line = new ArrayList<>( );
 
             // Cols
-            for (int col = instructions.getStartCol(); col <= instructions.getEndCol(); col++) {
+            for ( int col = instructions.getStartCol( ); col <= instructions.getEndCol( ); col++ ) {
                 cell = R + row + C + col;
-                int cellData = L.INT(conversation.request(cell).replaceAll("\\s+",""));
-                line.add(cellData);
+                System.out.println( cell );
+                int cellData = 0;
+                try {
+                    cellData = L.INT( conversation.request( cell ).replaceAll( "\\s+", "" ) );
+                } catch ( NumberFormatException e ) {
+                }
+                line.add( cellData );
             }
 
             // Append line
-            data.add(line);
+            data.add( line );
         }
 
         myData.setData( data );
@@ -68,7 +74,10 @@ public class DDEReader {
     public MyInstructions getInstructions() {
         return instructions;
     }
-    public void setInstructions(MyInstructions instructions) {
+
+    public void setInstructions( MyInstructions instructions ) {
         this.instructions = instructions;
     }
 }
+
+// C:/Users/user/Desktop/DDE/[DDE.xlsm]yogi

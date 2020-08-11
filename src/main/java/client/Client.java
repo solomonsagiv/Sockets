@@ -11,6 +11,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.Map;
 
 public class Client {
 
@@ -20,6 +21,8 @@ public class Client {
     private Socket socket = null;
     private ObjectOutputStream output = null;
     private ObjectInputStream input = null;
+
+    Map map;
 
     public Client( String address, int port, String path ) {
         this.address = address;
@@ -38,7 +41,7 @@ public class Client {
 
     public void start() {
         new Thread( () -> {
-            MyInstructions instructions = new MyInstructions( 1, 50, 1, 5 );
+            MyInstructions instructions = new MyInstructions( 1, 31, 1, 11 );
             MyData myData = new MyData( instructions );
 
             DDEReader ddeReader = new DDEReader( path, myData );

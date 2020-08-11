@@ -1,14 +1,20 @@
 package client.window;
 
 import client.Client;
+import file.FileMap;
+import file.MyFile;
 import gui.Guis;
 import locals.L;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ClientWindow extends Guis.MyFrame {
 
@@ -34,9 +40,15 @@ public class ClientWindow extends Guis.MyFrame {
     Guis.MyTextField excelField;
     Guis.MyButton connectBtn;
 
+    MyFile myFile;
+    FileMap fileMap;
+
+    Map map;
+
     // Constructor
     public ClientWindow( String title ) throws HeadlessException {
         super( title );
+        fileMap = FileMap.getInstance( );
     }
 
     @Override
@@ -87,19 +99,61 @@ public class ClientWindow extends Guis.MyFrame {
                 client.connect( );
             }
         } );
+
+        // Address
+        addressField.addActionListener( new ActionListener( ) {
+            @Override
+            public void actionPerformed( ActionEvent e ) {
+                String address = addressField.getText( );
+                map.put( FileMap.ADDRESS, address );
+                myFile.writeObject( map );
+            }
+        } );
+
+        // Port
+        portField.addActionListener( new ActionListener( ) {
+            @Override
+            public void actionPerformed( ActionEvent e ) {
+                int port = L.INT( portField.getText( ) );
+                map.put( FileMap.PORT, port );
+                myFile.writeObject( map );
+            }
+        } );
+
+        // Excel filed
+        excelField.addActionListener( new ActionListener( ) {
+            @Override
+            public void actionPerformed( ActionEvent e ) {
+                map.put( FileMap.EXCEL_PATH, excelField.getText( ) );
+                myFile.writeObject( map );
+            }
+        } );
     }
 
     @Override
     public void initialize() {
 
+        try {
+            myFile = new MyFile( "client-db.txt" );
+
+            if ( !myFile.exists( ) ) {
+                myFile.createNewFile( );
+            }
+
+            try {
+                map = ( HashMap< String, Object > ) myFile.readObject( );
+            } catch ( Exception e ) {
+                map = new HashMap<>( );
+            }
+        } catch ( Exception e ) {
+        }
+
         int width = 350;
-        String azor = "127.0.0.1";
-        String ono = "10.0.0.2";
 
         setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 
         // This
-        setSize( width, 400 );
+        setSize( width, 420 );
 
         // Port
         portLbl = new Guis.MyLabel( "Port" );
@@ -108,7 +162,6 @@ public class ClientWindow extends Guis.MyFrame {
 
         portField = new Guis.MyTextField( );
         portField.setXY( portLbl.getX( ), portLbl.getY( ) + portLbl.getHeight( ) + 5 );
-        portField.setText( "3333" );
         add( portField );
 
         // Address
@@ -118,7 +171,6 @@ public class ClientWindow extends Guis.MyFrame {
 
         addressField = new Guis.MyTextField( );
         addressField.setXY( addressLbl.getX( ), portField.getY( ) );
-        addressField.setText( ono );
         add( addressField );
 
         // Text area
@@ -136,8 +188,16 @@ public class ClientWindow extends Guis.MyFrame {
         // Excel field
         excelField = new Guis.MyTextField( );
         excelField.setXY( scrollPane.getX( ), scrollPane.getY( ) + scrollPane.getHeight( ) + 15 );
-        excelField.setText( "C:/Users/user/Desktop/DDE/[DDE.xlsm]Yogi" );
+
         excelField.setWidth( width - scrollPane.getX( ) * 2 );
         add( excelField );
+
+        try {
+            portField.setText( L.str( map.get( FileMap.PORT ) ) );
+            excelField.setText( L.str( map.get( FileMap.EXCEL_PATH ) ) );
+            addressField.setText( L.str( map.get( FileMap.ADDRESS ) ) );
+        } catch ( NullPointerException e ) {
+            e.printStackTrace();
+        }
     }
 }
